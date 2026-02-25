@@ -10,6 +10,9 @@ const transporter = nodemailer.createTransport({
   },
 });
 
+// Keeps checkout email tied to an order until payment is finalized.
+const pendingPaymentEmailByOrder = new Map();
+
 const renderSuccessPage = () => `
 <!DOCTYPE html>
 <html>
@@ -40,7 +43,7 @@ const renderSuccessPage = () => `
 `;
 
 const sendNotifications = async ({ order, customerEmail }) => {
-  const adminEmail = process.env.ADMIN_EMAIL || "chefernandez448@gmail.com";
+  const adminEmail = process.env.ADMIN_EMAIL || null;
 
   if (customerEmail) {
     try {
@@ -64,21 +67,23 @@ const sendNotifications = async ({ order, customerEmail }) => {
     console.log(`No customer email found for order ${order.id}`);
   }
 
-  try {
-    await transporter.sendMail({
-      from: process.env.EMAIL_USER,
-      to: adminEmail,
-      subject: `New Order - ${order.order_number}`,
-      html: `
-        <h2>New Order Received</h2>
-        <p><strong>Order:</strong> ${order.order_number}</p>
-        <p><strong>Customer:</strong> ${order.username} (${customerEmail || "unknown email"})</p>
-        <p><strong>Amount:</strong> R${Number(order.total_amount).toFixed(2)}</p>
-      `,
-    });
-    console.log(`Admin notification sent to ${adminEmail}`);
-  } catch (error) {
-    console.error("Admin email failed:", error);
+  if (adminEmail) {
+    try {
+      await transporter.sendMail({
+        from: process.env.EMAIL_USER,
+        to: adminEmail,
+        subject: `New Order - ${order.order_number}`,
+        html: `
+          <h2>New Order Received</h2>
+          <p><strong>Order:</strong> ${order.order_number}</p>
+          <p><strong>Customer:</strong> ${order.username} (${customerEmail || "unknown email"})</p>
+          <p><strong>Amount:</strong> R${Number(order.total_amount).toFixed(2)}</p>
+        `,
+      });
+      console.log(`Admin notification sent to ${adminEmail}`);
+    } catch (error) {
+      console.error("Admin email failed:", error);
+    }
   }
 };
 
@@ -124,8 +129,10 @@ const finalizeSuccessfulPayment = async ({ orderId, pfPaymentId = null, emailHin
       return { success: true, alreadyPaid: true, order };
     }
 
-    const customerEmail = order.user_email || emailHint || null;
+    const pendingEmail = pendingPaymentEmailByOrder.get(String(orderId)) || null;
+    const customerEmail = emailHint || pendingEmail || order.user_email || null;
     await sendNotifications({ order, customerEmail });
+    pendingPaymentEmailByOrder.delete(String(orderId));
     return { success: true, alreadyPaid: false, order };
   } catch (error) {
     await connection.rollback();
@@ -148,6 +155,8 @@ export const createPayment = async (req, res) => {
         error: "Missing required fields",
       });
     }
+
+    pendingPaymentEmailByOrder.set(String(order_id), String(email).trim().toLowerCase());
 
     const configuredReturnUrl = String(process.env.PAYFAST_RETURN_URL || "http://localhost:5401/api/payfast/success");
     const configuredCancelUrl = String(process.env.PAYFAST_CANCEL_URL || "http://localhost:5401/api/payfast/cancel");
