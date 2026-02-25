@@ -17,6 +17,15 @@
             <span>{{ item.name }} x{{ item.quantity }}</span>
             <span>R{{ (Number(item.unit_price) * Number(item.quantity)).toFixed(2) }}</span>
           </div>
+          <div class="address-section">
+            <label for="deliveryAddress"><strong>Delivery Address</strong></label>
+            <textarea
+              id="deliveryAddress"
+              v-model.trim="deliveryAddress"
+              rows="3"
+              placeholder="Enter your delivery address"
+            ></textarea>
+          </div>
           <div class="summary-line">
             <span>Subtotal:</span>
             <span>R{{ Number(cart.subtotal || 0).toFixed(2) }}</span>
@@ -52,11 +61,12 @@ export default {
       loading: true,
       success: null,
       error: null,
-      cart: { items: [], subtotal: 0, delivery_fee: 25.00, total: 0 }
+      cart: { items: [], subtotal: 0, delivery_fee: 25.00, total: 0 },
+      deliveryAddress: ''
     };
   },
   async created() {
-    await this.fetchCart();
+    await Promise.all([this.fetchCart(), this.fetchProfileAddress()]);
   },
   methods: {
     submitPayFastForm(url, fields) {
@@ -93,6 +103,33 @@ export default {
         this.loading = false;
       }
     },
+
+    async fetchProfileAddress() {
+      try {
+        const token = localStorage.getItem('token');
+        if (!token) return;
+
+        const response = await axios.get('http://localhost:5401/api/auth/me', {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+
+        if (response.data?.success) {
+          const profileAddress = response.data.data?.address || '';
+          this.deliveryAddress = profileAddress;
+
+          const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
+          localStorage.setItem(
+            'user',
+            JSON.stringify({
+              ...currentUser,
+              address: profileAddress
+            })
+          );
+        }
+      } catch (err) {
+        console.error('Error fetching profile address:', err);
+      }
+    },
     
     calculateTotal() {
       const subtotal = Number(this.cart.subtotal || 0);
@@ -120,8 +157,14 @@ export default {
           return;
         }
 
+        if (!this.deliveryAddress) {
+          this.error = 'Please add a delivery address before checkout.';
+          this.loading = false;
+          return;
+        }
+
         const orderResponse = await axios.post('http://localhost:5401/api/orders', {
-          delivery_address: '123 Main Street, Cape Town'
+          delivery_address: this.deliveryAddress
         }, {
           headers: { Authorization: `Bearer ${token}` }
         });
@@ -141,7 +184,7 @@ export default {
           email: user.email,
           amount: orderTotal,
           item_name: `Order #${orderId}`,
-          item_description: `TownshipsEats order ${orderId}`,
+          item_description: `Kasi Eats order ${orderId}`,
           order_id: orderId
         });
 
@@ -196,6 +239,26 @@ h1 {
   margin-bottom: 10px;
   padding-bottom: 10px;
   border-bottom: 1px solid #eee;
+}
+
+.address-section {
+  margin: 15px 0;
+}
+
+.address-section label {
+  display: block;
+  margin-bottom: 8px;
+  color: #333;
+}
+
+.address-section textarea {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  resize: vertical;
 }
 
 .summary-line {
@@ -257,3 +320,4 @@ button:disabled {
   text-align: center;
 }
 </style>
+

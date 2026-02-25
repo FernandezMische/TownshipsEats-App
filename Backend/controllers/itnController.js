@@ -3,9 +3,6 @@ export const handleITN = async (req, res) => {
   console.log("Body:", JSON.stringify(req.body, null, 2));
   console.log("==================================");
   
-  // Set the ngrok-skip-browser-warning header
-  res.setHeader('ngrok-skip-browser-warning', 'true');
-  
   // Always respond with 200 to acknowledge receipt
   res.status(200).send("ITN received");
   

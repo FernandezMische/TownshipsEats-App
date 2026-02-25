@@ -84,3 +84,29 @@ export const getMe = async (req, res) => {
     res.status(500).json({ success: false, error: 'Server error' });
   }
 };
+
+export const updateMe = async (req, res) => {
+  try {
+    const { username, email, address } = req.body;
+
+    if (!username || !email) {
+      return res.status(400).json({ success: false, error: 'Username and email are required' });
+    }
+
+    const existingUser = await UserModel.findByEmail(email);
+    if (existingUser && existingUser.id !== req.user.id) {
+      return res.status(400).json({ success: false, error: 'Email already in use' });
+    }
+
+    const updatedUser = await UserModel.updateProfile(req.user.id, {
+      username: String(username).trim(),
+      email: String(email).trim().toLowerCase(),
+      address: address ? String(address).trim() : null
+    });
+
+    res.json({ success: true, data: updatedUser });
+  } catch (error) {
+    console.error('Update me error:', error);
+    res.status(500).json({ success: false, error: 'Server error' });
+  }
+};

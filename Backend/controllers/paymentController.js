@@ -47,7 +47,7 @@ const sendNotifications = async ({ order, customerEmail }) => {
       await transporter.sendMail({
         from: process.env.EMAIL_USER,
         to: customerEmail,
-        subject: "Payment Confirmation - TownshipsEats",
+        subject: "Payment Confirmation - Kasi Eats",
         html: `
           <h2>Payment Successful</h2>
           <p>Thank you for your order.</p>
@@ -248,3 +248,4 @@ export const handleSuccessReturn = async (req, res) => {
 
   res.send(renderSuccessPage());
 };
+

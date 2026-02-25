@@ -16,11 +16,14 @@ const VendorModel = {
         return rows[0];
     },
 
-    // ✅ Get vendor by user ID
-    async getByUserId(userId) {
+    // Get vendor by user ID
+    async getByUserEmail(email) {
         const [rows] = await pool.execute(
-            'SELECT id, business_name as name, cuisine_type as cuisine, delivery_fee, rating FROM vendors WHERE user_id = ? AND is_active = true',
-            [userId]
+            `SELECT v.id, v.business_name as name, v.cuisine_type as cuisine, v.delivery_fee, v.rating
+             FROM vendors v
+             JOIN users u ON u.id = v.user_id
+             WHERE u.email = ? AND v.is_active = true`, 
+            [email]
         );
         return rows[0];
     },
@@ -36,7 +39,7 @@ const VendorModel = {
         return rows;
     },
 
-    // ✅ Add menu item
+    //  Add menu item
     async addMenuItem(vendorId, itemData) {
         const { name, description, price, category_id } = itemData;
         const [result] = await pool.execute(
@@ -46,7 +49,7 @@ const VendorModel = {
         return result.insertId;
     },
 
-    // ✅ Update menu item
+    //  Update menu item
     async updateMenuItem(itemId, vendorId, itemData) {
         const { name, description, price, category_id } = itemData;
         await pool.execute(
@@ -55,7 +58,7 @@ const VendorModel = {
         );
     },
 
-    // ✅ Delete menu item
+    //  Delete menu item
     async deleteMenuItem(itemId, vendorId) {
         await pool.execute(
             'DELETE FROM menu_items WHERE id = ? AND vendor_id = ?',

@@ -28,6 +28,7 @@
         <div v-for="delivery in availableDeliveries" :key="delivery.id" class="delivery-item">
           <div class="delivery-details">
             <h4>Order #{{ delivery.orderNumber }}</h4>
+            <p><strong>Status:</strong> {{ formatStatus(delivery.status) }}</p>
             <p><strong>Pickup:</strong> {{ delivery.pickupLocation }}</p>
             <p><strong>Dropoff:</strong> {{ delivery.dropoffLocation }}</p>
             <p><strong>Est. Earnings:</strong> R{{ Number(delivery.earning).toFixed(2) }}</p>
@@ -47,7 +48,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, onBeforeUnmount } from 'vue';
 import { useRouter } from 'vue-router';
 import axios from 'axios';
 import PrimaryButton from '../../components/Shared/PrimaryButton.vue';
@@ -59,6 +60,7 @@ const deliveriesToday = ref(0);
 const earningsToday = ref(0.0);
 const availableDeliveries = ref([]);
 const driverName = ref('Driver');
+let refreshTimer = null;
 
 const getTokenOrRedirect = () => {
   const token = localStorage.getItem('token');
@@ -94,6 +96,11 @@ const loadDashboard = async () => {
   }
 };
 
+const formatStatus = (status) => {
+  if (!status) return 'Unknown';
+  return status.replace(/_/g, ' ').replace(/\b\w/g, (char) => char.toUpperCase());
+};
+
 const acceptDelivery = async (orderId) => {
   try {
     const token = getTokenOrRedirect();
@@ -112,6 +119,12 @@ const acceptDelivery = async (orderId) => {
 
 onMounted(() => {
   loadDashboard();
+  // Keep dashboard fresh so vendor-accepted orders appear automatically.
+  refreshTimer = setInterval(loadDashboard, 10000);
+});
+
+onBeforeUnmount(() => {
+  if (refreshTimer) clearInterval(refreshTimer);
 });
 </script>
 

@@ -3,7 +3,7 @@
   <div class="login-page">
     <div class="page-card login-card">
       <div class="logo-container text-center mb-20">
-        <h2 style="color: var(--color-primary-orange);">TownshipsEats</h2>
+        <h2 style="color: var(--color-primary-orange);">Kasi Eats</h2>
         <p>Login to your account</p>
       </div>
 

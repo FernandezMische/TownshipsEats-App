@@ -3,7 +3,7 @@
   <div class="registration-page">
     <div class="page-card registration-card">
       <div class="text-center mb-20">
-        <h2 style="color: var(--color-primary-orange);">Register for TownshipsEats</h2>
+        <h2 style="color: var(--color-primary-orange);">Register for Kasi Eats</h2>
         <p>Create your new account</p>
       </div>
 

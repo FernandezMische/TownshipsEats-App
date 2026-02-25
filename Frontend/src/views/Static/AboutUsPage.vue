@@ -2,7 +2,7 @@
 <template>
   <div class="about-us-page">
     <div class="page-card about-card">
-      <h2 class="text-center mb-20">About TownshipEats</h2>
+      <h2 class="text-center mb-20">About Kasi Eats</h2>
       <p class="text-center intro-text mb-40">
         Bringing the heart of local cuisine directly to your doorstep.
       </p>
@@ -10,7 +10,7 @@
       <div class="section-content">
         <h3>Our Story</h3>
         <p>
-          TownshipEats was born from a passion for local food culture and a desire to empower township businesses. We believe that the vibrant, unique flavors of our communities deserve a platform that connects them with customers eager for authentic experiences. From a small idea to a growing network, we're dedicated to celebrating local talent and taste.
+          Kasi Eats was born from a passion for local food culture and a desire to empower township businesses. We believe that the vibrant, unique flavors of our communities deserve a platform that connects them with customers eager for authentic experiences. From a small idea to a growing network, we're dedicated to celebrating local talent and taste.
         </p>
 
         <h3>Our Mission</h3>
@@ -20,7 +20,7 @@
 
         <h3>The Team</h3>
         <p>
-          We are a diverse team of food enthusiasts, tech innovators, and community advocates. Our shared vision drives us to continuously improve TownshipEats, ensuring a seamless experience for everyone involved – from the vendor carefully preparing your meal to the driver delivering it with a smile.
+          We are a diverse team of food enthusiasts, tech innovators, and community advocates. Our shared vision drives us to continuously improve Kasi Eats, ensuring a seamless experience for everyone involved – from the vendor carefully preparing your meal to the driver delivering it with a smile.
         </p>
       </div>
 

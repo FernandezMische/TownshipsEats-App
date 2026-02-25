@@ -3,8 +3,8 @@
   <header class="app-header-component">
     <div class="header-content flex-between">
       <RouterLink to="/" class="logo-link">
-        <img src="https://cdn-icons-png.flaticon.com/512/1046/1046784.png" alt="TownshipsEats Logo" class="app-logo">
-        <h2 style="color: var(--color-primary-orange); margin: 0;">TownshipsEats</h2>
+        <img src="https://cdn-icons-png.flaticon.com/512/1046/1046784.png" alt="Kasi Eats Logo" class="app-logo">
+        <h2 style="color: var(--color-primary-orange); margin: 0;">Kasi Eats</h2>
       </RouterLink>
 
       <nav class="main-nav">

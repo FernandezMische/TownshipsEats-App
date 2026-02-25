@@ -4,10 +4,10 @@ import OrderModel from '../models/orderModel.js';
 // Get vendor dashboard data
 export const getVendorDashboard = async (req, res) => {
     try {
-        const userId = req.user.id;
+        const userEmail = req.user.email;
         
         // Get vendor info
-        const vendor = await VendorModel.getByUserId(userId);
+        const vendor = await VendorModel.getByUserEmail(userEmail);
         if (!vendor) {
             return res.status(404).json({ success: false, error: 'Vendor not found' });
         }
@@ -46,8 +46,8 @@ export const getVendorDashboard = async (req, res) => {
 // Get vendor orders
 export const getVendorOrders = async (req, res) => {
     try {
-        const userId = req.user.id;
-        const vendor = await VendorModel.getByUserId(userId);
+        const userEmail = req.user.email;
+        const vendor = await VendorModel.getByUserEmail(userEmail);
         
         if (!vendor) {
             return res.status(404).json({ success: false, error: 'Vendor not found' });
@@ -64,11 +64,11 @@ export const getVendorOrders = async (req, res) => {
 // Update order status
 export const updateOrderStatus = async (req, res) => {
     try {
-        const userId = req.user.id;
+        const userEmail = req.user.email;
         const { orderId } = req.params;
         const { status } = req.body;
 
-        const vendor = await VendorModel.getByUserId(userId);
+        const vendor = await VendorModel.getByUserEmail(userEmail);
         if (!vendor) {
             return res.status(404).json({ success: false, error: 'Vendor not found' });
         }
@@ -84,12 +84,12 @@ export const updateOrderStatus = async (req, res) => {
 // Get vendor earnings
 export const getVendorEarnings = async (req, res) => {
     try {
-        const userId = req.user.id;
+        const userEmail = req.user.email;
         const { period = 'month' } = req.query;
 
-        console.log(`Fetching earnings for user ${userId}, period: ${period}`);
+        console.log(`Fetching earnings for email ${userEmail}, period: ${period}`);
 
-        const vendor = await VendorModel.getByUserId(userId);
+        const vendor = await VendorModel.getByUserEmail(userEmail);
         if (!vendor) {
             return res.status(404).json({ success: false, error: 'Vendor not found' });
         }
@@ -118,8 +118,8 @@ export const getVendorEarnings = async (req, res) => {
 // Get vendor menu
 export const getVendorMenu = async (req, res) => {
     try {
-        const userId = req.user.id;
-        const vendor = await VendorModel.getByUserId(userId);
+        const userEmail = req.user.email;
+        const vendor = await VendorModel.getByUserEmail(userEmail);
         
         if (!vendor) {
             return res.status(404).json({ success: false, error: 'Vendor not found' });
@@ -136,8 +136,8 @@ export const getVendorMenu = async (req, res) => {
 // Add menu item
 export const addMenuItem = async (req, res) => {
     try {
-        const userId = req.user.id;
-        const vendor = await VendorModel.getByUserId(userId);
+        const userEmail = req.user.email;
+        const vendor = await VendorModel.getByUserEmail(userEmail);
         
         if (!vendor) {
             return res.status(404).json({ success: false, error: 'Vendor not found' });
@@ -154,9 +154,9 @@ export const addMenuItem = async (req, res) => {
 // Update menu item
 export const updateMenuItem = async (req, res) => {
     try {
-        const userId = req.user.id;
+        const userEmail = req.user.email;
         const { itemId } = req.params;
-        const vendor = await VendorModel.getByUserId(userId);
+        const vendor = await VendorModel.getByUserEmail(userEmail);
         
         if (!vendor) {
             return res.status(404).json({ success: false, error: 'Vendor not found' });
@@ -173,9 +173,9 @@ export const updateMenuItem = async (req, res) => {
 // Delete menu item
 export const deleteMenuItem = async (req, res) => {
     try {
-        const userId = req.user.id;
+        const userEmail = req.user.email;
         const { itemId } = req.params;
-        const vendor = await VendorModel.getByUserId(userId);
+        const vendor = await VendorModel.getByUserEmail(userEmail);
         
         if (!vendor) {
             return res.status(404).json({ success: false, error: 'Vendor not found' });

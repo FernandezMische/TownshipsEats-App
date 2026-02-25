@@ -2,7 +2,7 @@
 <template>
   <footer class="app-footer">
     <div class="footer-content">
-      <p>&copy; {{ currentYear }} TownshipEats. All rights reserved.</p>
+      <p>&copy; {{ currentYear }} Kasi Eats. All rights reserved.</p>
       <nav class="footer-nav">
         <RouterLink to="/about" class="footer-link">About Us</RouterLink>
         <RouterLink to="/contact" class="footer-link">Contact</RouterLink>

@@ -34,7 +34,7 @@ app.use("/api/driver", driverRoutes);
 
 // Basic route
 app.get("/", (req, res) => {
-  res.json({ message: "TownshipsEats API is running" });
+  res.json({ message: "Kasi Eats API is running" });
 });
 
 const PORT = process.env.PORT || 5401;
@@ -42,3 +42,4 @@ app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
   console.log(`PayFast Sandbox: ${process.env.PAYFAST_SANDBOX === 'true' ? 'YES' : 'NO'}`);
 });
+

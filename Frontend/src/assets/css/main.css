@@ -1,6 +1,6 @@
 /* Frontend/src/assets/css/main.css */
 
-/* Township Eats - Color Palette */
+/* Kasi Eats - Color Palette */
 :root {
   --color-primary-orange: #ff7f00; /* Main brand orange */
   --color-secondary-green: #28a745; /* A complementary green for accents */
@@ -58,7 +58,7 @@ a:hover {
 .mb-20 { margin-bottom: 20px; }
 .p-20 { padding: 20px; }
 
-/* Basic button style - Township Eats feel */
+/* Basic button style - Kasi Eats feel */
 button {
   background-color: var(--color-primary-orange);
   color: var(--color-text-light);
