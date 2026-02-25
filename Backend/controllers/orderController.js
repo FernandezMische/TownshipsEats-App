@@ -1,4 +1,4 @@
-import CartModel from '../models/cartModel.js';
+import CartModel from '../models/CartModel.js';
 import OrderModel from '../models/orderModel.js';
 
 export const createOrder = async (req, res) => {
@@ -22,17 +22,47 @@ export const createOrder = async (req, res) => {
         }
         
         const orderId = await OrderModel.create(req.user.id, cart, delivery_address);
-        await CartModel.clearCart(req.user.id);
         
         res.json({ 
             success: true, 
             message: 'Order created successfully',
-            data: { order_id: orderId, total: cart.total }
+            data: { 
+                order_id: orderId, 
+                total: cart.total,
+                vendor_id: cart.vendor_id
+            }
         });
         
     } catch (error) {
         console.error('Error creating order:', error);
-        res.status(500).json({ success: false, error: 'Server error' });
+        res.status(500).json({ success: false, error: error.message });
+    }
+};
+
+export const completeOrderImmediately = async (req, res) => {
+    try {
+        const { delivery_address, total_amount, items, vendor_id } = req.body;
+        const userId = req.user.id;
+        
+        console.log('Completing order immediately for user:', userId);
+        
+        const orderId = await OrderModel.createImmediateOrder(userId, {
+            vendor_id,
+            items,
+            total: total_amount,
+            delivery_fee: 25.00,
+            subtotal: total_amount - 25.00
+        }, delivery_address);
+        
+        res.json({ 
+            success: true, 
+            message: 'Order completed successfully',
+            data: { order_id: orderId }
+        });
+        
+    } catch (error) {
+        console.error('Error completing order:', error);
+        res.status(500).json({ success: false, error: error.message });
     }
 };
 

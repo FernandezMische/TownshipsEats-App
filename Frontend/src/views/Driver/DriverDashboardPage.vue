@@ -17,15 +17,26 @@
       </div>
 
       <h3 class="mt-40 mb-20 text-center">Available Deliveries</h3>
-      <div v-if="availableDeliveries.length > 0" class="delivery-list">
+
+      <div v-if="loading" class="text-center">
+        <p>Loading available deliveries...</p>
+      </div>
+      <div v-else-if="errorMessage" class="text-center error-message">
+        <p>{{ errorMessage }}</p>
+      </div>
+      <div v-else-if="availableDeliveries.length > 0" class="delivery-list">
         <div v-for="delivery in availableDeliveries" :key="delivery.id" class="delivery-item">
           <div class="delivery-details">
-            <h4>Order #{{ delivery.id }}</h4>
+            <h4>Order #{{ delivery.orderNumber }}</h4>
             <p><strong>Pickup:</strong> {{ delivery.pickupLocation }}</p>
             <p><strong>Dropoff:</strong> {{ delivery.dropoffLocation }}</p>
-            <p><strong>Est. Earnings:</strong> R{{ delivery.earning.toFixed(2) }}</p>
+            <p><strong>Est. Earnings:</strong> R{{ Number(delivery.earning).toFixed(2) }}</p>
           </div>
-          <PrimaryButton text="Accept" type="success" @click="acceptDelivery(delivery.id)" />
+          <PrimaryButton
+            text="Accept"
+            type="success"
+            @click="acceptDelivery(delivery.id)"
+          />
         </div>
       </div>
       <div v-else class="text-center">
@@ -36,27 +47,75 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
-import PrimaryButton from '../../components/Shared/PrimaryButton.vue'; // Import PrimaryButton
+import { ref, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
+import axios from 'axios';
+import PrimaryButton from '../../components/Shared/PrimaryButton.vue';
 
-const driverName = ref('Sizwe');
-const deliveriesToday = ref(5);
-const earningsToday = ref(250.00);
+const router = useRouter();
+const loading = ref(true);
+const errorMessage = ref('');
+const deliveriesToday = ref(0);
+const earningsToday = ref(0.0);
+const availableDeliveries = ref([]);
+const driverName = ref('Driver');
 
-const availableDeliveries = ref([
-  { id: 'ORD123', pickupLocation: 'Kasi Flavours', dropoffLocation: 'Street A, House 123', earning: 35.00 },
-  { id: 'ORD124', pickupLocation: 'Gourmet Grills', dropoffLocation: 'Street B, Flat 4', earning: 40.00 },
-]);
-
-const acceptDelivery = (deliveryId) => {
-  alert(`Delivery ${deliveryId} accepted!`);
-  // In a real app, this would update the backend and remove from available list
-  availableDeliveries.value = availableDeliveries.value.filter(d => d.id!== deliveryId);
+const getTokenOrRedirect = () => {
+  const token = localStorage.getItem('token');
+  if (!token) {
+    router.push('/login');
+    throw new Error('Not authenticated');
+  }
+  return token;
 };
+
+const loadDashboard = async () => {
+  loading.value = true;
+  errorMessage.value = '';
+  try {
+    const token = getTokenOrRedirect();
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    driverName.value = user.username || 'Driver';
+
+    const response = await axios.get('http://localhost:5401/api/driver/dashboard', {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+
+    if (response.data?.success) {
+      availableDeliveries.value = response.data.data.availableDeliveries || [];
+      deliveriesToday.value = Number(response.data.data.stats?.deliveriesToday || 0);
+      earningsToday.value = Number(response.data.data.stats?.earningsToday || 0);
+    }
+  } catch (error) {
+    console.error('Error loading driver dashboard:', error);
+    errorMessage.value = error.response?.data?.error || error.message || 'Failed to load dashboard';
+  } finally {
+    loading.value = false;
+  }
+};
+
+const acceptDelivery = async (orderId) => {
+  try {
+    const token = getTokenOrRedirect();
+    await axios.post(
+      `http://localhost:5401/api/driver/deliveries/${orderId}/accept`,
+      {},
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+
+    await loadDashboard();
+  } catch (error) {
+    console.error('Error accepting delivery:', error);
+    alert(error.response?.data?.error || 'Failed to accept delivery');
+  }
+};
+
+onMounted(() => {
+  loadDashboard();
+});
 </script>
 
 <style scoped>
-/* Keep existing styles */
 .driver-dashboard-page {
   display: flex;
   background: linear-gradient(135deg, #fff5ec, #ffe8d6);
@@ -126,5 +185,9 @@ const acceptDelivery = (deliveryId) => {
   margin: 0;
   font-size: 0.9em;
   color: var(--color-grey-text);
+}
+
+.error-message {
+  color: #c62828;
 }
 </style>

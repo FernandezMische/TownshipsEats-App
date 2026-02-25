@@ -8,7 +8,13 @@
 
       <PrimaryButton text="Add New Dish" type="success" :fullWidth="false" class="add-dish-btn mb-20" @click="goToAddDish" />
 
-      <div class="dish-list">
+      <div v-if="loading" class="text-center">
+        <p>Loading menu...</p>
+      </div>
+      <div v-else-if="error" class="text-center">
+        <p>{{ error }}</p>
+      </div>
+      <div v-else class="dish-list">
         <div v-for="dish in menuDishes" :key="dish.id" class="dish-item flex-between">
           <div class="dish-info">
             <img :src="dish.image" :alt="dish.name" class="dish-image">
@@ -29,18 +35,51 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
-import { useRouter } from 'vue-router'; // Import useRouter
+import { ref, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
+import axios from 'axios';
 import BackButton from '../../components/Shared/BackButton.vue';
 import PrimaryButton from '../../components/Shared/PrimaryButton.vue';
 
-const router = useRouter(); // Initialize router
+const router = useRouter();
+const loading = ref(true);
+const error = ref('');
+const menuDishes = ref([]);
 
-const menuDishes = ref([
-  { id: 1, name: 'Kota Special', description: 'Classic Kota with all the trimmings.', price: 60.00, image: 'https://loremflickr.com/50/50/sandwich' },
-  { id: 2, name: 'Mogodu & Pap', description: 'Traditional tripe and pap.', price: 75.00, image: 'https://loremflickr.com/50/50/porridge' },
-  { id: 3, name: 'Boerewors Roll', description: 'Grilled boerewors in a bun.', price: 40.00, image: 'https://loremflickr.com/50/50/hotdog' },
-]);
+const placeholderImage = 'https://via.placeholder.com/60x60?text=Dish';
+const getTokenOrRedirect = () => {
+  const token = localStorage.getItem('token');
+  if (!token) {
+    router.push('/login');
+    throw new Error('Not authenticated');
+  }
+  return token;
+};
+
+const fetchMenu = async () => {
+  loading.value = true;
+  error.value = '';
+  try {
+    const token = getTokenOrRedirect();
+
+    const response = await axios.get('http://localhost:5401/api/vendor/menu', {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+
+    if (response.data?.success) {
+      menuDishes.value = (response.data.data || []).map((dish) => ({
+        ...dish,
+        price: Number(dish.price || 0),
+        image: dish.image || placeholderImage
+      }));
+    }
+  } catch (err) {
+    console.error('Error loading menu:', err);
+    error.value = err.response?.data?.error || 'Failed to load menu';
+  } finally {
+    loading.value = false;
+  }
+};
 
 const goToAddDish = () => {
   router.push({ name: 'AddDish' });
@@ -50,13 +89,26 @@ const goToEditDish = (dishId) => {
   router.push({ name: 'EditDish', params: { id: dishId } });
 };
 
-const deleteDish = (dishId) => {
+const deleteDish = async (dishId) => {
   if (confirm(`Are you sure you want to delete dish ID ${dishId}?`)) {
-    menuDishes.value = menuDishes.value.filter(dish => dish.id!== dishId);
-    alert(`Dish ${dishId} deleted!`);
-    // In a real app, send API call to delete
+    try {
+      const token = getTokenOrRedirect();
+      await axios.delete(`http://localhost:5401/api/vendor/menu/${dishId}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      menuDishes.value = menuDishes.value.filter(dish => dish.id !== dishId);
+      alert('Dish deleted successfully.');
+    } catch (err) {
+      console.error('Error deleting dish:', err);
+      alert(err.response?.data?.error || 'Failed to delete dish');
+    }
   }
 };
+
+onMounted(() => {
+  fetchMenu();
+});
 </script>
 
 <style scoped>

@@ -22,6 +22,7 @@ import VendorOrdersPage from '../views/Vendor/VendorOrdersPage.vue'; // NEW
 import MenuManagementPage from '../views/Vendor/MenuManagementPage.vue';
 import DishFormPage from '../views/Vendor/DishFormPage.vue'; // NEW
 import VendorReportsPage from '../views/Vendor/VendorReportsPage.vue'; // NEW
+import VendorEarningsPage from '../views/Vendor/VendorEarningsPage.vue';
 
 // --- Driver Pages ---
 import DriverDashboardPage from '../views/Driver/DriverDashboardPage.vue';
@@ -142,6 +143,11 @@ component: payment,
           path: 'reports', // NEW
           name: 'VendorReports',
           component: VendorReportsPage,
+        },
+        {
+          path: 'earnings',
+          name: 'VendorEarnings',
+          component: VendorEarningsPage,
         },
       ],
     },

@@ -7,7 +7,10 @@ import contactRoutes from "./routes/contactRoutes.js";
 import vendorRoutes from "./routes/vendorRoutes.js";      
 import categoryRoutes from "./routes/categoryRoutes.js";  
 import cartRoutes from "./routes/cartRoutes.js";          
-import orderRoutes from "./routes/orderRoutes.js";  
+import orderRoutes from "./routes/orderRoutes.js"; 
+import publicVendorRoutes from "./routes/publicVendorRoutes.js";
+import driverRoutes from "./routes/driverRoutes.js";
+
 
 dotenv.config();
 
@@ -21,11 +24,13 @@ app.use(express.urlencoded({ extended: true }));
 // Routes
 app.use("/api/auth", authRoutes)
 app.use("/api", paymentRoutes);
-app.use("/api", contactRoutes);
-app.use("/api/vendors", vendorRoutes);      
+app.use("/api", contactRoutes);     
 app.use("/api/categories", categoryRoutes); 
 app.use("/api/cart", cartRoutes);            
-app.use("/api/orders", orderRoutes);         
+app.use("/api/orders", orderRoutes);    
+app.use("/api/vendor", vendorRoutes);     
+app.use("/api/vendors", publicVendorRoutes);
+app.use("/api/driver", driverRoutes);
 
 // Basic route
 app.get("/", (req, res) => {

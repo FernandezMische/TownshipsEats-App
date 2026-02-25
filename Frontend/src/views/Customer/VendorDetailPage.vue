@@ -3,12 +3,18 @@
   <div class="vendor-detail-page">
     <div class="page-card vendor-detail-card">
       <BackButton class="mb-20">Back to Home</BackButton>
-      
-      <div v-if="vendor">
+
+      <div v-if="loading" class="text-center">
+        <p>Loading vendor details...</p>
+      </div>
+      <div v-else-if="error" class="text-center">
+        <p>{{ error }}</p>
+      </div>
+      <div v-else-if="vendor">
         <h2 class="text-center mb-10">{{ vendor.name }}</h2>
         <p class="text-center vendor-cuisine mb-20">{{ vendor.cuisine }}</p>
 
-        <img :src="vendor.bannerImage" :alt="vendor.name" class="vendor-banner">
+        <img :src="bannerImage" :alt="vendor.name" class="vendor-banner">
 
         <h3 class="mt-40 mb-20">Menu</h3>
         <div class="menu-list">
@@ -16,14 +22,14 @@
         </div>
       </div>
       <div v-else class="text-center">
-        <p>Loading vendor details...</p>
+        <p>Vendor not found.</p>
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import BackButton from '../../components/Shared/BackButton.vue';
 import MealCard from '../../components/Customer/MealCard.vue';
@@ -32,78 +38,35 @@ import axios from 'axios';
 const route = useRoute();
 const router = useRouter();
 const vendor = ref(null);
+const loading = ref(true);
+const error = ref('');
 
-const dummyVendors = [
-  {
-    id: 1,
-    name: 'Kasi Flavours',
-    cuisine: 'Traditional SA',
-    bannerImage: 'https://loremflickr.com/800/200/food,african,table?lock=201',
-    menu: [
-      { id: 101, name: 'Kota Special', description: 'Classic Kota with all the trimmings.', price: 60.00, image: 'https://loremflickr.com/90/90/sandwich,sub?lock=301', vendor_id: 1, vendor_name: 'Kasi Flavours' },
-      { id: 102, name: 'Mogodu & Pap', description: 'Traditional tripe and pap.', price: 75.00, image: 'https://loremflickr.com/90/90/porridge,stew?lock=302', vendor_id: 1, vendor_name: 'Kasi Flavours' },
-      { id: 103, name: 'Skop', description: 'Grilled lamb head, a local delicacy.', price: 90.00, image: 'https://loremflickr.com/90/90/meat,roasted?lock=303', vendor_id: 1, vendor_name: 'Kasi Flavours' },
-    ],
-  },
-  {
-    id: 2,
-    name: 'Vusi\'s Shisanyama',
-    cuisine: 'Braai & Meat',
-    bannerImage: 'https://loremflickr.com/800/200/barbecue,fire,night?lock=202',
-    menu: [
-      { id: 201, name: 'Mixed Grill Platter', description: 'Wors, chops, and brisket for 2.', price: 250.00, image: 'https://loremflickr.com/90/90/barbecue,steak?lock=304', vendor_id: 2, vendor_name: 'Vusi\'s Shisanyama' },
-      { id: 202, name: 'Quarter Chicken & Chips', description: 'Flame grilled chicken leg.', price: 65.00, image: 'https://loremflickr.com/90/90/chicken,fries?lock=305', vendor_id: 2, vendor_name: 'Vusi\'s Shisanyama' },
-      { id: 203, name: 'Steak & Pap', description: 'Tender steak served with gravy and pap.', price: 120.00, image: 'https://loremflickr.com/90/90/steak,dinner?lock=306', vendor_id: 2, vendor_name: 'Vusi\'s Shisanyama' },
-    ],
-  },
-  {
-    id: 3,
-    name: 'Gourmet Grills',
-    cuisine: 'Burgers & BBQ',
-    bannerImage: 'https://loremflickr.com/800/200/burger,restaurant?lock=203',
-    menu: [
-      { id: 301, name: 'Cheese Burger', description: 'Juicy patty with cheddar.', price: 85.00, image: 'https://loremflickr.com/90/90/burger,cheese?lock=307', vendor_id: 3, vendor_name: 'Gourmet Grills' },
-      { id: 302, name: 'Ribs Platter', description: 'Tender BBQ ribs with fries.', price: 150.00, image: 'https://loremflickr.com/90/90/ribs,bbq?lock=308', vendor_id: 3, vendor_name: 'Gourmet Grills' },
-      { id: 303, name: 'Loaded Fries', description: 'Fries topped with bacon and cheese.', price: 55.00, image: 'https://loremflickr.com/90/90/fries,cheese?lock=309', vendor_id: 3, vendor_name: 'Gourmet Grills' },
-    ],
-  },
-  {
-    id: 4,
-    name: 'Mama Nandi\'s Kitchen',
-    cuisine: 'Home Cooked',
-    bannerImage: 'https://loremflickr.com/800/200/stew,pot,cooking?lock=204',
-    menu: [
-      { id: 401, name: 'Hardbody Chicken', description: 'Slow cooked marathon chicken.', price: 85.00, image: 'https://loremflickr.com/90/90/chicken,stew?lock=310', vendor_id: 4, vendor_name: 'Mama Nandi\'s Kitchen' },
-      { id: 402, name: 'Dombolo & Stew', description: 'Beef stew with steamed dumplings.', price: 80.00, image: 'https://loremflickr.com/90/90/dumplings,stew?lock=311', vendor_id: 4, vendor_name: 'Mama Nandi\'s Kitchen' },
-      { id: 403, name: 'Samp & Beans', description: 'Creamy samp and beans.', price: 50.00, image: 'https://loremflickr.com/90/90/beans,corn?lock=312', vendor_id: 4, vendor_name: 'Mama Nandi\'s Kitchen' },
-    ],
-  },
-  {
-    id: 5,
-    name: 'Kasi King Kotas',
-    cuisine: 'Street Food',
-    bannerImage: 'https://loremflickr.com/800/200/streetfood,market?lock=205',
-    menu: [
-      { id: 501, name: 'The Boss Kota', description: 'Polony, viennas, russian, cheese, egg.', price: 95.00, image: 'https://loremflickr.com/90/90/sandwich,huge?lock=313', vendor_id: 5, vendor_name: 'Kasi King Kotas' },
-      { id: 502, name: 'Student Kota', description: 'Chips, polony and atchar.', price: 35.00, image: 'https://loremflickr.com/90/90/sandwich,chips?lock=314', vendor_id: 5, vendor_name: 'Kasi King Kotas' },
-      { id: 503, name: 'Russian & Chips', description: 'Fried russian sausage with chips.', price: 45.00, image: 'https://loremflickr.com/90/90/hotdog,fries?lock=315', vendor_id: 5, vendor_name: 'Kasi King Kotas' },
-    ],
-  },
-  {
-    id: 6,
-    name: 'Pizza Zone',
-    cuisine: 'Italian',
-    bannerImage: 'https://loremflickr.com/800/200/pizza,italian?lock=206',
-    menu: [
-      { id: 601, name: 'Meaty Supreme', description: 'Ham, bacon, pepperoni, chicken.', price: 130.00, image: 'https://loremflickr.com/90/90/pizza,meat?lock=316', vendor_id: 6, vendor_name: 'Pizza Zone' },
-      { id: 602, name: 'Hawaiian', description: 'Ham and pineapple.', price: 100.00, image: 'https://loremflickr.com/90/90/pizza,pineapple?lock=317', vendor_id: 6, vendor_name: 'Pizza Zone' },
-    ],
-  },
-];
+const bannerImage = computed(() => {
+  return vendor.value?.bannerImage || `https://loremflickr.com/800/200/restaurant,food?lock=${route.params.id}`;
+});
 
-onMounted(() => {
-  const vendorId = parseInt(route.params.id);
-  vendor.value = dummyVendors.find(v => v.id === vendorId);
+onMounted(async () => {
+  loading.value = true;
+  error.value = '';
+  try {
+    const response = await axios.get(`http://localhost:5401/api/vendors/${route.params.id}`);
+    if (response.data?.success) {
+      const data = response.data.data;
+      vendor.value = {
+        ...data,
+        menu: (data.menu || []).map((item) => ({
+          ...item,
+          price: Number(item.price || 0),
+          image: item.image || `https://loremflickr.com/90/90/meal?lock=${item.id}`
+        }))
+      };
+    }
+  } catch (err) {
+    console.error('Error loading vendor details:', err);
+    error.value = err.response?.data?.error || 'Failed to load vendor details';
+  } finally {
+    loading.value = false;
+  }
 });
 
 const handleAddToCart = async (item) => {
@@ -122,7 +85,7 @@ const handleAddToCart = async (item) => {
     }, {
       headers: { Authorization: `Bearer ${token}` }
     });
-    
+
     if (response.data.success) {
       alert(`${item.name} added to cart!`);
     }

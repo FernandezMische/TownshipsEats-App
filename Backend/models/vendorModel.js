@@ -16,6 +16,15 @@ const VendorModel = {
         return rows[0];
     },
 
+    // ✅ Get vendor by user ID
+    async getByUserId(userId) {
+        const [rows] = await pool.execute(
+            'SELECT id, business_name as name, cuisine_type as cuisine, delivery_fee, rating FROM vendors WHERE user_id = ? AND is_active = true',
+            [userId]
+        );
+        return rows[0];
+    },
+
     async getMenu(vendorId) {
         const [rows] = await pool.execute(`
             SELECT m.*, c.name as category_name
@@ -25,6 +34,33 @@ const VendorModel = {
             ORDER BY c.name, m.name
         `, [vendorId]);
         return rows;
+    },
+
+    // ✅ Add menu item
+    async addMenuItem(vendorId, itemData) {
+        const { name, description, price, category_id } = itemData;
+        const [result] = await pool.execute(
+            'INSERT INTO menu_items (vendor_id, name, description, price, category_id) VALUES (?, ?, ?, ?, ?)',
+            [vendorId, name, description, price, category_id]
+        );
+        return result.insertId;
+    },
+
+    // ✅ Update menu item
+    async updateMenuItem(itemId, vendorId, itemData) {
+        const { name, description, price, category_id } = itemData;
+        await pool.execute(
+            'UPDATE menu_items SET name = ?, description = ?, price = ?, category_id = ? WHERE id = ? AND vendor_id = ?',
+            [name, description, price, category_id, itemId, vendorId]
+        );
+    },
+
+    // ✅ Delete menu item
+    async deleteMenuItem(itemId, vendorId) {
+        await pool.execute(
+            'DELETE FROM menu_items WHERE id = ? AND vendor_id = ?',
+            [itemId, vendorId]
+        );
     }
 };
 

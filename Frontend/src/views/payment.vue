@@ -33,24 +33,10 @@
       
       <div v-if="success" class="success">{{ success }}</div>
       <div v-if="error" class="error">{{ error }}</div>
-      <div v-if="debugInfo" class="debug">{{ debugInfo }}</div>
 
-      <!-- Hidden form that will be submitted -->
-      <form ref="payfastForm" method="POST" :action="payfastUrl" style="display: none;">
-        <input v-for="(value, key) in payfastData" 
-               :key="key" 
-               type="hidden" 
-               :name="key" 
-               :value="value" />
-      </form>
-
-      <button v-if="cart.items && cart.items.length > 0 && !success && !submitting" @click="createPayment" :disabled="loading">
-        {{ loading ? "Processing..." : `Pay R${calculateTotal().toFixed(2)} with PayFast` }}
+      <button v-if="cart.items && cart.items.length > 0 && !success" @click="completeOrder" :disabled="loading">
+        {{ loading ? "Processing..." : `Complete Order - R${calculateTotal().toFixed(2)}` }}
       </button>
-      
-      <div v-if="submitting" class="info">
-        Redirecting to PayFast secure payment page...
-      </div>
     </div>
   </div>
 </template>
@@ -64,12 +50,8 @@ export default {
   data() {
     return {
       loading: true,
-      submitting: false,
       success: null,
       error: null,
-      debugInfo: null,
-      payfastUrl: null,
-      payfastData: null,
       cart: { items: [], subtotal: 0, delivery_fee: 25.00, total: 0 }
     };
   },
@@ -77,6 +59,23 @@ export default {
     await this.fetchCart();
   },
   methods: {
+    submitPayFastForm(url, fields) {
+      const form = document.createElement('form');
+      form.method = 'POST';
+      form.action = url;
+
+      Object.entries(fields).forEach(([key, value]) => {
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = key;
+        input.value = value ?? '';
+        form.appendChild(input);
+      });
+
+      document.body.appendChild(form);
+      form.submit();
+    },
+
     async fetchCart() {
       try {
         const token = localStorage.getItem('token');
@@ -86,7 +85,6 @@ export default {
         
         if (response.data.success) {
           this.cart = response.data.data;
-          console.log('Cart loaded:', this.cart);
         }
       } catch (err) {
         console.error('Error fetching cart:', err);
@@ -102,66 +100,65 @@ export default {
       return subtotal + deliveryFee;
     },
     
-    async createPayment() {
+    async completeOrder() {
       this.loading = true;
       this.error = null;
       this.success = null;
-      this.debugInfo = "Sending payment request...";
-      this.payfastUrl = null;
-      this.payfastData = null;
 
       try {
         const token = localStorage.getItem('token');
         const user = JSON.parse(localStorage.getItem('user') || '{}');
-        
-        const totalAmount = this.calculateTotal().toFixed(2);
-        
-        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/payfast/pay`, {
-          method: "POST",
-          headers: { 
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${token}`,
-            "ngrok-skip-browser-warning": "true"
-          },
-          body: JSON.stringify({
-            first_name: user.username || "Customer",
-            last_name: "",
-            email: user.email || "customer@example.com",
-            amount: totalAmount,
-            item_name: `Order from ${this.cart.vendor_name || 'TownshipsEats'}`,
-            item_description: `${this.cart.items?.length || 0} items`,
-            order_id: `order-${Date.now()}`
-          }),
+
+        if (!token) {
+          this.$router.push('/login');
+          return;
+        }
+
+        if (!user.email) {
+          this.error = 'Missing user email. Please log in again.';
+          this.loading = false;
+          return;
+        }
+
+        const orderResponse = await axios.post('http://localhost:5401/api/orders', {
+          delivery_address: '123 Main Street, Cape Town'
+        }, {
+          headers: { Authorization: `Bearer ${token}` }
         });
 
-        this.debugInfo = `Response status: ${response.status}`;
-
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
+        if (!orderResponse.data?.success) {
+          throw new Error('Failed to create order');
         }
 
-        const data = await response.json();
-        this.debugInfo = `Response received: ${JSON.stringify(data)}`;
+        const orderId = orderResponse.data.data?.order_id;
+        const orderTotal = Number(orderResponse.data.data?.total || this.calculateTotal());
+        const [firstName, ...restName] = String(user.username || 'Customer').trim().split(' ');
+        const lastName = restName.join(' ');
 
-        if (data.success && data.url && data.data) {
-          this.success = `Payment of R${totalAmount} initialized! Redirecting to PayFast...`;
-          
-          this.payfastUrl = data.url;
-          this.payfastData = data.data;
+        const payfastResponse = await axios.post('http://localhost:5401/api/payfast/pay', {
+          first_name: firstName || 'Customer',
+          last_name: lastName || '',
+          email: user.email,
+          amount: orderTotal,
+          item_name: `Order #${orderId}`,
+          item_description: `TownshipsEats order ${orderId}`,
+          order_id: orderId
+        });
 
-          setTimeout(() => {
-            this.submitting = true;
-            this.$refs.payfastForm.submit();
-          }, 1500);
-        } else {
-          this.error = data.error || "Payment initiation failed";
+        if (!payfastResponse.data?.success || !payfastResponse.data?.url || !payfastResponse.data?.data) {
+          throw new Error(payfastResponse.data?.error || 'Failed to initiate PayFast');
         }
+
+        this.success = 'Redirecting to PayFast...';
+        this.submitPayFastForm(payfastResponse.data.url, payfastResponse.data.data);
       } catch (err) {
-        console.error("Payment error:", err);
-        this.error = `Error: ${err.message}`;
-        this.debugInfo = err.toString();
-      } finally {
+        console.error("Order error:", err);
+        this.error = `Error: ${err.response?.data?.error || err.message}`;
         this.loading = false;
+      } finally {
+        if (this.success !== 'Redirecting to PayFast...') {
+          this.loading = false;
+        }
       }
     },
   },
@@ -169,7 +166,6 @@ export default {
 </script>
 
 <style scoped>
-/* Keep your existing CSS exactly the same */
 .payment-container {
   max-width: 500px;
   margin: 50px auto;
@@ -255,29 +251,6 @@ button:disabled {
   border-radius: 4px;
   border: 1px solid #4caf50;
   font-weight: bold;
-}
-
-.info {
-  color: #2196f3;
-  margin-top: 10px;
-  padding: 10px;
-  background-color: #e3f2fd;
-  border-radius: 4px;
-  border: 1px solid #2196f3;
-}
-
-.debug {
-  color: #666;
-  margin-top: 10px;
-  font-size: 12px;
-  text-align: left;
-  background-color: #f5f5f5;
-  padding: 10px;
-  border-radius: 4px;
-  word-break: break-all;
-  border: 1px solid #ddd;
-  max-height: 200px;
-  overflow: auto;
 }
 
 .text-center {
