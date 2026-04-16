@@ -25,8 +25,7 @@ app.use(cors({
     optionsSuccessStatus: 204
 }));
 
-// Handle preflight requests
-app.options('*', cors());
+
 
 // Middleware
 app.use(express.json());
