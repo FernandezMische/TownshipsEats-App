@@ -51,6 +51,17 @@ app.get("/", (req, res) => {
   res.json({ message: "Kasi Eats API is running" });
 });
 
+app.get("/api/debug", (req, res) => {
+    res.json({
+        message: "Backend is reachable",
+        headers: req.headers,
+        env: {
+            node: process.version,
+            cors_origin: 'configured'
+        }
+    });
+});
+
 const PORT = process.env.PORT || 5401;
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`Server running on http://localhost:${PORT}`);
