@@ -1,10 +1,14 @@
 {
-  "routes": [
+  "headers": [
     {
-      "src": "/assets/(.*)\\.css",
-      "headers": { "Content-Type": "text/css" },
-      "dest": "/assets/$1.css"
-    },
+      "source": "/assets/(.*)",
+      "headers": [
+        { "key": "Content-Type", "value": "text/css" },
+        { "key": "Access-Control-Allow-Origin", "value": "*" }
+      ]
+    }
+  ],
+  "routes": [
     {
       "src": "/(.*)",
       "dest": "/index.html"
