@@ -15,15 +15,13 @@ dotenv.config();
 
 const app = express();
 
-// CORS configuration - FIXED
+// CORS configuration - Allow all origins for testing
 app.use(cors({
-    origin: true, // This allows any origin temporarily for testing
+    origin: true,
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization']
 }));
-
-
 
 // Middleware
 app.use(express.json());
