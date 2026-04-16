@@ -32,6 +32,9 @@ app.use("/api/vendor", vendorRoutes);
 app.use("/api/vendors", publicVendorRoutes);
 app.use("/api/driver", driverRoutes);
 
+app.get("/api/test", (req, res) => {
+  res.json({ message: "Test works" });
+});
 // Basic route
 app.get("/", (req, res) => {
   res.json({ message: "Kasi Eats API is running" });
