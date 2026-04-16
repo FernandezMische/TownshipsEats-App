@@ -2,6 +2,14 @@ import { ref, computed } from 'vue'
 import { defineStore } from 'pinia'
 import axios from 'axios'
 
+const API_URL = 'https://townships-eats-backend.onrender.com/api';
+
+// Set up axios to always include token if it exists
+const token = localStorage.getItem('token')
+if (token) {
+  axios.defaults.headers.common['Authorization'] = `Bearer ${token}`
+}
+
 export const useAuthStore = defineStore('auth', () => {
   // State
   const user = ref(JSON.parse(localStorage.getItem('user')) || null)
@@ -20,11 +28,9 @@ export const useAuthStore = defineStore('auth', () => {
     token.value = authToken
     isAuthenticated.value = true
     
-    // Save to localStorage
     localStorage.setItem('user', JSON.stringify(userData))
     localStorage.setItem('token', authToken)
     
-    // Set default axios header
     axios.defaults.headers.common['Authorization'] = `Bearer ${authToken}`
   }
 
@@ -33,17 +39,15 @@ export const useAuthStore = defineStore('auth', () => {
     token.value = null
     isAuthenticated.value = false
     
-    // Clear localStorage
     localStorage.removeItem('user')
     localStorage.removeItem('token')
     
-    // Remove axios header
     delete axios.defaults.headers.common['Authorization']
   }
 
   async function login(credentials) {
     try {
-      const response = await axios.post('https://townships-eats-backend.onrender.com/api/auth/login', credentials)
+      const response = await axios.post(`${API_URL}/auth/login`, credentials)
       
       if (response.data.success) {
         const { data } = response.data
@@ -61,7 +65,7 @@ export const useAuthStore = defineStore('auth', () => {
 
   async function register(userData) {
     try {
-     const response = await axios.post('https://townships-eats-backend.onrender.com/api/auth/register', userData)
+      const response = await axios.post(`${API_URL}/auth/register`, userData)
       
       if (response.data.success) {
         return { success: true, data: response.data.data }
