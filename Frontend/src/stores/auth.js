@@ -61,7 +61,7 @@ export const useAuthStore = defineStore('auth', () => {
 
   async function register(userData) {
     try {
-      const response = await axios.post('http://localhost:5401/api/auth/register', userData)
+     const response = await axios.post('https://townships-eats-backend.onrender.com/api/auth/register', userData)
       
       if (response.data.success) {
         return { success: true, data: response.data.data }
