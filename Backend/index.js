@@ -11,15 +11,16 @@ import orderRoutes from "./routes/orderRoutes.js";
 import publicVendorRoutes from "./routes/publicVendorRoutes.js";
 import driverRoutes from "./routes/driverRoutes.js";
 
-
 dotenv.config();
 
 const app = express();
 
-// Middleware
+// Middleware - UPDATED CORS
 app.use(cors({
     origin: 'https://townships-eats-app.vercel.app',
-    credentials: true
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization']
 }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -35,17 +36,13 @@ app.use("/api/vendor", vendorRoutes);
 app.use("/api/vendors", publicVendorRoutes);
 app.use("/api/driver", driverRoutes);
 
-app.get("/api/test", (req, res) => {
-  res.json({ message: "Test works" });
-});
 // Basic route
 app.get("/", (req, res) => {
   res.json({ message: "Kasi Eats API is running" });
 });
 
 const PORT = process.env.PORT || 5401;
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0', () => {
   console.log(`Server running on http://localhost:${PORT}`);
   console.log(`PayFast Sandbox: ${process.env.PAYFAST_SANDBOX === 'true' ? 'YES' : 'NO'}`);
 });
-
