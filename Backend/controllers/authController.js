@@ -56,6 +56,15 @@ export const login = async (req, res) => {
     }
 
     const token = generateToken(user);
+    
+    // Set cookie for cross-domain authentication
+    res.cookie('token', token, {
+      httpOnly: true,
+      secure: true,
+      sameSite: 'none',
+      maxAge: 7 * 24 * 60 * 60 * 1000
+    });
+    
     res.json({ 
       success: true, 
       data: { 
