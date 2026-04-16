@@ -1,17 +1,7 @@
 {
-  "buildCommand": "cd Frontend && npm install && npm run build",
-  "outputDirectory": "Frontend/dist",
+  "buildCommand": "npm install && npm run build",
+  "outputDirectory": "dist",
   "routes": [
-    {
-      "src": "/assets/(.*)",
-      "headers": { "Content-Type": "application/javascript" },
-      "dest": "/assets/$1"
-    },
-    {
-      "src": "/(.*\\.css)",
-      "headers": { "Content-Type": "text/css" },
-      "dest": "/$1"
-    },
     {
       "src": "/(.*)",
       "dest": "/index.html"
