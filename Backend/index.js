@@ -17,12 +17,10 @@ const app = express();
 
 // CORS configuration - FIXED
 app.use(cors({
-    origin: 'https://townships-eats-app.vercel.app',
+    origin: true, // This allows any origin temporarily for testing
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
-    preflightContinue: false,
-    optionsSuccessStatus: 204
+    allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
 
