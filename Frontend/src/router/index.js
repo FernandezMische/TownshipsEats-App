@@ -1,5 +1,5 @@
 // Frontend/src/router/index.js
-import { createRouter, createWebHistory } from 'vue-router';
+import { createRouter, createWebHashHistory } from 'vue-router';
 
 // --- Auth Pages ---
 import LoginPage from '../views/Auth/LoginPage.vue';
@@ -32,7 +32,7 @@ import AboutUsPage from '../views/Static/AboutUsPage.vue';
 import ContactPage from '../views/Static/ContactPage.vue';
 
 const router = createRouter({
-  history: createWebHistory(),
+  history: createWebHashHistory(),
   routes: [
     {
       path: '/',
