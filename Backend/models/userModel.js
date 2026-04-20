@@ -22,7 +22,7 @@ const hasAddressColumn = async () => {
 
 const UserModel = {
     async findByEmail(email){
-        const sql = 'SELECT * FROM users WHERE email =?';
+        const sql = 'SELECT id, username, email, password, role FROM users WHERE email = ?';
         const [rows] = await pool.execute(sql, [email]);
         return rows[0];
     },
@@ -30,8 +30,8 @@ const UserModel = {
     async findById(id) {
        const includeAddress = await hasAddressColumn();
        const sql = includeAddress
-            ? 'SELECT id, username, email, role, address, created_at FROM users WHERE id = ?'
-            : 'SELECT id, username, email, role, created_at FROM users WHERE id = ?';
+            ? 'SELECT id, username, email, role, address FROM users WHERE id = ?'
+            : 'SELECT id, username, email, role FROM users WHERE id = ?';
        const [rows] = await pool.execute(sql, [id]);
        const user = rows[0];
        if (!user) return null;
@@ -68,4 +68,4 @@ const UserModel = {
     }
 };
 
-export default UserModel
+export default UserModel;
