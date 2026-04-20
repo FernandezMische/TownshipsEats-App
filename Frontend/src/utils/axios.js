@@ -2,7 +2,7 @@ import axios from 'axios'
 
 // Create axios instance with base URL from env
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5401/api',
+  baseURL: import.meta.env.VITE_API_URL || 'https://townships-eats-backend.onrender.com/api',
   headers: {
     'Content-Type': 'application/json'
   }

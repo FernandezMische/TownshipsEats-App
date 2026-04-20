@@ -75,12 +75,12 @@ const getAuthHeaders = () => {
 };
 
 const fetchCategories = async () => {
-  const response = await axios.get('http://localhost:5401/api/categories');
+  const response = await axios.get('https://townships-eats-backend.onrender.com/api/categories');
   categories.value = response.data?.data || [];
 };
 
 const fetchDishForEdit = async (dishId) => {
-  const response = await axios.get('http://localhost:5401/api/vendor/menu', {
+  const response = await axios.get('https://townships-eats-backend.onrender.com/api/vendor/menu', {
     headers: getAuthHeaders()
   });
   const existingDish = (response.data?.data || []).find((d) => Number(d.id) === Number(dishId));
@@ -131,12 +131,12 @@ const handleSubmit = async () => {
     }
 
     if (isEditing.value) {
-      await axios.put(`http://localhost:5401/api/vendor/menu/${dish.value.id}`, payload, {
+      await axios.put(`https://townships-eats-backend.onrender.com/api/vendor/menu/${dish.value.id}`, payload, {
         headers: getAuthHeaders()
       });
       successMessage.value = 'Dish updated successfully.';
     } else {
-      await axios.post('http://localhost:5401/api/vendor/menu', payload, {
+      await axios.post('https://townships-eats-backend.onrender.com/api/vendor/menu', payload, {
         headers: getAuthHeaders()
       });
       successMessage.value = 'Dish added successfully.';

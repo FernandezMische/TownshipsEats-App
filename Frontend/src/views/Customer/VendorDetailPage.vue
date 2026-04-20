@@ -49,7 +49,7 @@ onMounted(async () => {
   loading.value = true;
   error.value = '';
   try {
-    const response = await axios.get(`http://localhost:5401/api/vendors/${route.params.id}`);
+    const response = await axios.get(`https://townships-eats-backend.onrender.com/api/vendors/${route.params.id}`);
     if (response.data?.success) {
       const data = response.data.data;
       vendor.value = {
@@ -78,7 +78,7 @@ const handleAddToCart = async (item) => {
       return;
     }
 
-    const response = await axios.post('http://localhost:5401/api/cart/add', {
+    const response = await axios.post('https://townships-eats-backend.onrender.com/api/cart/add', {
       vendor_id: vendor.value.id,
       menu_item_id: item.id,
       quantity: 1

@@ -84,7 +84,7 @@ const addToCart = async (item) => {
       return;
     }
 
-    const response = await axios.post('http://localhost:5401/api/cart/add', {
+    const response = await axios.post('https://townships-eats-backend.onrender.com/api/cart/add', {
       vendor_id: item.vendor_id,
       menu_item_id: item.id,
       quantity: 1

@@ -79,7 +79,7 @@ const loadDashboard = async () => {
     const user = JSON.parse(localStorage.getItem('user') || '{}');
     driverName.value = user.username || 'Driver';
 
-    const response = await axios.get('http://localhost:5401/api/driver/dashboard', {
+    const response = await axios.get('https://townships-eats-backend.onrender.com/api/driver/dashboard', {
       headers: { Authorization: `Bearer ${token}` }
     });
 
@@ -105,7 +105,7 @@ const acceptDelivery = async (orderId) => {
   try {
     const token = getTokenOrRedirect();
     await axios.post(
-      `http://localhost:5401/api/driver/deliveries/${orderId}/accept`,
+      `https://townships-eats-backend.onrender.com/api/driver/deliveries/${orderId}/accept`,
       {},
       { headers: { Authorization: `Bearer ${token}` } }
     );

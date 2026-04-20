@@ -62,7 +62,7 @@ const fetchMenu = async () => {
   try {
     const token = getTokenOrRedirect();
 
-    const response = await axios.get('http://localhost:5401/api/vendor/menu', {
+    const response = await axios.get('https://townships-eats-backend.onrender.com/api/vendor/menu', {
       headers: { Authorization: `Bearer ${token}` }
     });
 
@@ -93,7 +93,7 @@ const deleteDish = async (dishId) => {
   if (confirm(`Are you sure you want to delete dish ID ${dishId}?`)) {
     try {
       const token = getTokenOrRedirect();
-      await axios.delete(`http://localhost:5401/api/vendor/menu/${dishId}`, {
+      await axios.delete(`https://townships-eats-backend.onrender.com/api/vendor/menu/${dishId}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
 

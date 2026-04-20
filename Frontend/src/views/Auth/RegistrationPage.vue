@@ -83,7 +83,7 @@ const handleRegister = async () => {
 
   try {
     // ✅ NEW: Include selectedRole in the request
-    const response = await axios.post('http://localhost:5401/api/auth/register', {
+    const response = await axios.post('https://townships-eats-backend.onrender.com/api/auth/register', {
       username: username.value,
       email: email.value,
       password: password.value,

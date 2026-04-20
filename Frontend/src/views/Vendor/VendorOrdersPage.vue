@@ -80,7 +80,7 @@ const getStatusClass = (status) => {
 const fetchOrders = async () => {
   try {
     const token = localStorage.getItem('token');
-    const response = await axios.get('http://localhost:5401/api/vendor/orders', {
+    const response = await axios.get('https://townships-eats-backend.onrender.com/api/vendor/orders', {
       headers: { Authorization: `Bearer ${token}` }
     });
     
@@ -97,7 +97,7 @@ const fetchOrders = async () => {
 const updateOrderStatus = async (orderId, newStatus) => {
   try {
     const token = localStorage.getItem('token');
-    await axios.put(`http://localhost:5401/api/vendor/orders/${orderId}/status`, 
+    await axios.put(`https://townships-eats-backend.onrender.com/api/vendor/orders/${orderId}/status`, 
       { status: newStatus },
       { headers: { Authorization: `Bearer ${token}` } }
     );

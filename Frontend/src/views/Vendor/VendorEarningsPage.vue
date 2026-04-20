@@ -83,7 +83,7 @@ const fetchEarnings = async (period) => {
       return;
     }
 
-    const response = await axios.get(`http://localhost:5401/api/vendor/earnings?period=${period}`, {
+    const response = await axios.get(`https://townships-eats-backend.onrender.com/api/vendor/earnings?period=${period}`, {
       headers: { 
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json'

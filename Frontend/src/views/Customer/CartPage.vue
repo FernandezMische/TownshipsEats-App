@@ -74,7 +74,7 @@ const fetchCart = async () => {
       return;
     }
 
-    const response = await axios.get('http://localhost:5401/api/cart', {
+    const response = await axios.get('https://townships-eats-backend.onrender.com/api/cart', {
       headers: { Authorization: `Bearer ${token}` }
     });
     
@@ -114,7 +114,7 @@ const increaseQuantity = async (id) => {
   if (item) {
     try {
       const token = localStorage.getItem('token');
-      await axios.put(`http://localhost:5401/api/cart/item/${id}`, 
+      await axios.put(`https://townships-eats-backend.onrender.com/api/cart/item/${id}`, 
         { quantity: (item.quantity || 1) + 1 },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -132,7 +132,7 @@ const decreaseQuantity = async (id) => {
     if (currentQty > 1) {
       try {
         const token = localStorage.getItem('token');
-        await axios.put(`http://localhost:5401/api/cart/item/${id}`, 
+        await axios.put(`https://townships-eats-backend.onrender.com/api/cart/item/${id}`, 
           { quantity: currentQty - 1 },
           { headers: { Authorization: `Bearer ${token}` } }
         );
@@ -149,7 +149,7 @@ const decreaseQuantity = async (id) => {
 const removeFromCart = async (id) => {
   try {
     const token = localStorage.getItem('token');
-    await axios.delete(`http://localhost:5401/api/cart/item/${id}`, {
+    await axios.delete(`https://townships-eats-backend.onrender.com/api/cart/item/${id}`, {
       headers: { Authorization: `Bearer ${token}` }
     });
     cartItems.value = cartItems.value.filter(item => item.id !== id);

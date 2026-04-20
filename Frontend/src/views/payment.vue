@@ -89,7 +89,7 @@ export default {
     async fetchCart() {
       try {
         const token = localStorage.getItem('token');
-        const response = await axios.get('http://localhost:5401/api/cart', {
+        const response = await axios.get('https://townships-eats-backend.onrender.com/api/cart', {
           headers: { Authorization: `Bearer ${token}` }
         });
         
@@ -109,7 +109,7 @@ export default {
         const token = localStorage.getItem('token');
         if (!token) return;
 
-        const response = await axios.get('http://localhost:5401/api/auth/me', {
+        const response = await axios.get('https://townships-eats-backend.onrender.com/api/auth/me', {
           headers: { Authorization: `Bearer ${token}` }
         });
 
@@ -163,7 +163,7 @@ export default {
           return;
         }
 
-        const orderResponse = await axios.post('http://localhost:5401/api/orders', {
+        const orderResponse = await axios.post('https://townships-eats-backend.onrender.com/api/orders', {
           delivery_address: this.deliveryAddress
         }, {
           headers: { Authorization: `Bearer ${token}` }
@@ -178,7 +178,7 @@ export default {
         const [firstName, ...restName] = String(user.username || 'Customer').trim().split(' ');
         const lastName = restName.join(' ');
 
-        const payfastResponse = await axios.post('http://localhost:5401/api/payfast/pay', {
+        const payfastResponse = await axios.post('https://townships-eats-backend.onrender.com/api/payfast/pay', {
           first_name: firstName || 'Customer',
           last_name: lastName || '',
           email: user.email,

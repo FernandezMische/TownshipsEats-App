@@ -96,7 +96,7 @@ const submitForm = async () => {
   error.value = '';
 
   try {
-    const response = await axios.post('http://localhost:5401/api/contact', {
+    const response = await axios.post('https://townships-eats-backend.onrender.com/api/contact', {
       senderId: form.value.senderId,
       senderRole: form.value.senderRole,
       senderName: form.value.customerName,

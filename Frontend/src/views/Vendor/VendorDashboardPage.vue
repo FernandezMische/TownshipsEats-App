@@ -71,7 +71,7 @@ const fetchDashboard = async () => {
     const token = localStorage.getItem('token');
     console.log('Fetching vendor dashboard with token:', token);
     
-    const response = await axios.get('http://localhost:5401/api/vendor/dashboard', {
+    const response = await axios.get('https://townships-eats-backend.onrender.com/api/vendor/dashboard', {
       headers: { Authorization: `Bearer ${token}` }
     });
     

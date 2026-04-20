@@ -125,7 +125,7 @@ const loadProfile = async () => {
       return;
     }
 
-    const response = await axios.get('http://localhost:5401/api/auth/me', {
+    const response = await axios.get('https://townships-eats-backend.onrender.com/api/auth/me', {
       headers: { Authorization: `Bearer ${token}` }
     });
 
@@ -173,7 +173,7 @@ const saveProfile = async () => {
     }
 
     const response = await axios.put(
-      'http://localhost:5401/api/auth/me',
+      'https://townships-eats-backend.onrender.com/api/auth/me',
       {
         username: form.value.username,
         email: form.value.email,
